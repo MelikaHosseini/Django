@@ -17,7 +17,7 @@ class Reciept():
             if booking_id in self.reciept:
                  pass
             else:
-               #   self.cart[product_id] = {'price': str(product.price)}
+               #   self.cart[booking_id] = {'price': str(booking.price)}
                self.reciept[booking_id] = int(booking_id)  
             self.session.modified = True     
 
