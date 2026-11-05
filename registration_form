@@ -1,0 +1,45 @@
+from django.shortcuts import render, redirect
+from django.contrib import messages, User
+
+def signup_view(request):
+    if request.method == 'POST':
+        fname = request.POST['fname']
+        user = User.objects.create_user(fname = fname) 
+        if role == 'user':
+            user.is_student = True
+        elif role == 'admin':
+            user.is_admin = True
+        user.save()
+        login(request, user)
+        messages.success(request, 'signed up')
+        return redirect('home')
+    return render(request,'validation/register.html')    
+
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        pass = request.POST['pass']
+        user = authenticate(request, username=email, password = password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Login successful')
+
+            if user.is_valid_admin:
+                return redirect("admin_dashboard")
+        
+            elif user.is_valid_user:
+                return redirect("user_dashboard")
+            else:
+                messages.error(request, 'Invalid form' )
+                return redirect('index')
+        else:
+            messages.error(request, 'Invalid form')    
+    return render(request, 'validation/login.html')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'logged out')
+    return redirect('home')
+
+
