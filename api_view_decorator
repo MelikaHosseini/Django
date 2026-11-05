@@ -1,0 +1,34 @@
+
+from .models import *
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+
+@api_view(['GET'])
+def objList(request):
+    obj = models1.objects.all()
+    serializer = models1Serializer(dates, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def objDetail(request, pk):
+    obj = models1.objects.get(id=pk)
+    serializer = models1Serializer(objs, many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def objCreate(request):
+    serializer = models1Serializer(data = request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def objUpdate(request, pk):
+    obj = models1.objects.get(id=pk)
+    serializer = models1Serializer(instance=obj, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
