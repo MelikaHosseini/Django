@@ -1,0 +1,78 @@
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render,redirect, get_object_or_404
+from item.models import Item
+from .models import *
+from .forms import *
+
+# Create your views here.
+
+@login_required
+def new_user(request, item_pk):
+    item = get_object_or_404(Item, pk=item_pk)
+
+    if item.created_by == request.user:
+        return redirect('dashboard:index')
+    
+    users = Users.objects.filter(item=item).filter(members__in=[request.user.id])
+
+    if new_user:
+        return redirect('user:detail', pk=user.first().id)
+
+    if request.method == 'POST':
+        form = new_userMassagesForm(request.POST)
+
+        if form.is_valid():
+            new_user = Users.objects.create(item=item)
+            new_user.members.add(request.user)
+            new_user.members.add(item.created_by)
+            new_user.save()
+
+            new_user_message = form.save(commit=False)
+            new_user_message.communication = communication
+            new_user_message.created_by = request.user
+            new_user_message.save()
+
+            return redirect('item:detail', pk=item_pk)
+    else:
+        form = newUserMassagesForm()
+    return render(request, 'userManagement/new.html',{
+        'form': form
+    })
+
+
+@login_required
+def inbox(request):
+    new_user = Profile.objects.filter(members__in=[request.user.id])
+
+    return render(request,'userManagement/inbox.html',{
+        'new_users': new_users
+    })
+
+@login_required
+def detail(request, pk):
+    new_user = Profile.objects.filter(members__in=[request.user.id]).get(pk=pk)
+
+    if request.method == 'POST':
+            form = new_userMassagesForm(request.POST)
+
+            if form.is_valid():
+                new_user_message = form.save(commit=False)
+                new_user_message.new_user = new_user
+                new_user_message.created_by = request.user
+                new_user_message.save()
+
+                new_user.save()
+
+                return redirect(request, 'userManagement/detail.html', pk=pk)
+    else:
+        form = newUserMassagesForm()                
+                
+    return render(request, 'userManagement/detail.html',{
+        'userManagement':userManagement,
+        'form' : form
+    })
+
+
+
